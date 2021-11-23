@@ -1,65 +1,66 @@
-// import logo from './logo.svg';
-// import './App.css';
-import React, { useState } from "react";
-import ActiveChats from "./Components/ActiveChats";
+import logo from "./logo.svg";
+import "./App.css";
+import React, { useState, useEffect } from "react";
+import ActiveChats from "./Components/ActiveChats/ActiveChats";
+import ActiveChat from "./Components/ActiveChats/ActiveChat/ActiveChat";
+import AuthForm from "./Components/Authentication/AuthForm";
 
 function App() {
-  const [activeConversations, setActiveConversations] = useState([
-    {
-      participants: ["Student", "Brian"],
-      id: "1",
-    },
-    {
-      participants: ["Student", "Frank"],
-      id: "2",
-    },
-  ]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeConversations, setActiveConversations] = useState([]);
+  console.log("isLoggedIn: ", isLoggedIn)
+  // useEffect(() => {
+  //   console.log("isLoggedIn: ", isLoggedIn)
+  //   // fetch all active conversations if the user is logged in
+  //   if (isLoggedIn) {
+  //     fetch(
+  //       `http://thadd-chatter.s3-website-us-east-1.amazonaws.com/data/conversations.json`
+  //     )
+  //       .then((response) => {
+  //         return response.json(); // return promise
+  //       })
+  //       .then((data) => {
+  //         console.log("API response from S3: ",data);
+  //         setActiveConversations(data);
+  //       })
+  //       .catch((err) => console.log(err));
+  //   }
+  // }, [isLoggedIn]);
 
-  const [conversationHist, setConversationHist] = useState([
-    {
-      id: "1",
-      participants: ["Student", "Brian"],
-      messages: [
-        {
-          sender: "Frank",
-          time: 1512246342159,
-          message: "This is Brian.",
-        },
-      ],
-    },
-    {
-      id: "2",
-      participants: ["Student", "Frank"],
-      messages: [
-        {
-          sender: "Frank",
-          time: 1512246342159,
-          message: "This is Frank. I'm also sending you a message.",
-        },
-        {
-          sender: "Student",
-          time: 1512246342160,
-          message: "Take a hike man.",
-        },
-      ],
-    },
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // if (isLoggedIn) {
+
+  //   fetch(
+  //     `http://thadd-chatter.s3-website-us-east-1.amazonaws.com/data/conversations.json`
+  //   )
+  //     .then((response) => {
+  //       return response.json(); // return promise
+  //     })
+  //     .then((data) => {
+  //       console.log("API response from S3: ",data);
+  //       setActiveConversations(data);
+  //     })
+  //     .catch((err) => console.log(err));
+  // }
 
   return (
-    <ActiveChats
-      activeConversations={activeConversations}
-      conversationHist={conversationHist}
-    />
+    <div className="App">
+      {!isLoggedIn && (
+        <div>
+          <div>
+            <img src={logo} className="App-logo" alt="logo" />
+          </div>
+          <div>
+            <AuthForm setActiveConversations={setActiveConversations} setIsLoggedIn={setIsLoggedIn} />
+          </div>
+        </div>
+      )}
+      {isLoggedIn && (
+        <div>
+          <ActiveChats activeConversations={activeConversations} />
+        </div>
+      )}
+    </div>
   );
 }
 
 export default App;
-
-// <div className="App">
-// <header className="App-header">
-//   <img src={logo} className="App-logo" alt="logo" />
-
-// </header>
-// </div>
