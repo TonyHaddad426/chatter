@@ -6,6 +6,7 @@ function AuthForm(props) {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const usernameInputRef = useRef();
+  // const emailInputRef = useRef();
   const passwordInputRef = useRef();
 
   const switchAuthModeHandler = () => {
@@ -23,17 +24,29 @@ function AuthForm(props) {
       setIsLoading(true);
       // if isLogin is true, then authenticate existing user
       if (enteredUsername === "Student" && enteredPassword) {
-        console.log("Updating logged in state");
+        console.log(
+          "Updating logged in state and setting current user state in app,js"
+        );
         props.setIsLoggedIn(true);
+        props.setCurrentUser(enteredUsername);
         // fetch active conversations data for the just logged in user
         fetch(
-          `http://thadd-chatter.s3-website-us-east-1.amazonaws.com/data/conversations.json`
+          `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations`
         )
           .then((response) => {
             return response.json(); // return promise
           })
           .then((data) => {
-            console.log("API response from S3: ", data);
+            console.log(
+              "API convo list response from API Gateway and Lambda: ",
+              data
+            );
+
+            for (let key in data) {
+              const index = data[key].participants.indexOf(enteredUsername);
+              data[key].participants.splice(index, 1);
+            }
+            console.log(data);
             props.setActiveConversations(data);
           })
           .catch((err) => console.log(err));
