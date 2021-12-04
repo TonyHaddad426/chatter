@@ -33,51 +33,69 @@ function AuthForm(props) {
     const enteredPassword = passwordInputRef.current.value;
     const enteredEmail = emailInputRef.current.value;
 
-    // optional: add validation
     if (isLogin) {
       // if isLogin is true, then authenticate existing user
-      if (enteredUsername === "Student" && enteredPassword) {
-        console.log(
-          "Updating logged in state and setting current user state in app.js"
-        );
-        props.setIsLoggedIn(true);
-        props.setCurrentUser(enteredUsername);
-        // fetch active conversations data for the just logged in user
-        fetch(
-          `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations`
-        )
-          .then((response) => {
-            return response.json(); // return promise
-          })
-          .then((data) => {
-            console.log(
-              "API convo list response from API Gateway and Lambda: ",
-              data
-            );
 
-            for (let key in data) {
-              const index = data[key].participants.indexOf(enteredUsername);
-              data[key].participants.splice(index, 1);
-            }
-            console.log(data);
-            props.setActiveConversations(data);
-          })
-          .catch((err) => console.log(err));
-      }
+      const authenticationData = {
+        Username: enteredUsername,
+        Password: enteredPassword,
+      };
+      const authenticationDetails =
+        new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+
+      const userData = {
+        Username: enteredUsername,
+        Pool: userPool,
+      };
+
+      const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+      cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: function () {
+          console.log(
+            "User has been authenticated, setting state in app.js and fetching user convo data"
+          );
+          props.setIsLoggedIn(true);
+          props.setCurrentUser(enteredUsername);
+          // fetch active conversations data for the just logged in user
+          fetch(
+            `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations`
+          )
+            .then((response) => {
+              return response.json(); // return promise
+            })
+            .then((data) => {
+              console.log(
+                "API convo list response from API Gateway and Lambda: ",
+                data
+              );
+
+              for (let key in data) {
+                const index = data[key].participants.indexOf(enteredUsername);
+                data[key].participants.splice(index, 1);
+              }
+              console.log(data);
+              props.setActiveConversations(data);
+            })
+            .catch((err) => console.log(err));
+        },
+        onFailure: function () {
+          window.location("/");
+          alert("Invalid user credentials");
+        },
+      });
     } else {
+      // if isLogin is not true, then thr user is trying to sign up or create a new user
       const email = new AmazonCognitoIdentity.CognitoUserAttribute({
         Name: "email",
         Value: enteredEmail,
       });
 
-      // else if isLogin is false, create new user
       userPool.signUp(
         enteredUsername,
         enteredPassword,
         [email],
         null,
         function (err, result) {
-          console.log("HI");
           console.log(JSON.stringify(result));
 
           if (err) {
@@ -100,7 +118,6 @@ function AuthForm(props) {
           setShowVerifyCode={setShowVerifyCode}
           userPool={userPool}
           enteredUsername={usernameInputRef.current.value}
-          setIsLog={setIsLogin}
         />
       )}
       {!showVerifyCode && (
@@ -117,16 +134,21 @@ function AuthForm(props) {
                 ref={usernameInputRef}
               />
             </div>
-            <div className={classes.control}>
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                maxLength="100"
-                required
-                ref={emailInputRef}
-              />
-            </div>
+
+            {!isLogin && (
+              <div className={classes.control}>
+                {" "}
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  maxLength="100"
+                  required
+                  ref={emailInputRef}
+                />{" "}
+              </div>
+            )}
+
             <div className={classes.control}>
               <label htmlFor="password">Password</label>
               <input

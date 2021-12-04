@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import classes from "./ActiveChats.module.css";
 import ActiveChat from "./ActiveChat/ActiveChat";
 import NewChat from "./NewChat/NewChat";
+import Logout from "../Authentication/Logout/Logout"
 import Moment from "react-moment";
 import "../../App.css";
 
@@ -111,6 +112,7 @@ function ActiveChats(props) {
         )}
       </div>
       <div className={classes.flex_child}>
+        <Logout setIsLoggedIn={props.setIsLoggedIn} setCurrentUser={props.setCurrentUser} ></Logout>
         {!conversationHist && (
           <div>Click on a conversation to open it here</div>
         )}

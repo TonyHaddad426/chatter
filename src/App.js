@@ -5,7 +5,7 @@ import ActiveChats from "./Components/ActiveChats/ActiveChats";
 import AuthForm from "./Components/Authentication/AuthForm";
 
 function App() {
-  const [currentUser, setCurrentUser] = useState("")
+  const [currentUser, setCurrentUser] = useState()
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeConversations, setActiveConversations] = useState([]);
 
@@ -27,7 +27,7 @@ function App() {
       )}
       {isLoggedIn && (
         <div>
-          <ActiveChats currentUser = {currentUser} activeConversations={activeConversations} setActiveConversations={setActiveConversations} />
+          <ActiveChats currentUser = {currentUser} activeConversations={activeConversations} setActiveConversations={setActiveConversations} setIsLoggedIn={setIsLoggedIn} setCurrentUser={setCurrentUser} />
         </div>
       )}
     </div>
