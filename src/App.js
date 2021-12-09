@@ -1,33 +1,41 @@
 import logo from "./logo.svg";
 import "./App.css";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ActiveChats from "./Components/ActiveChats/ActiveChats";
 import AuthForm from "./Components/Authentication/AuthForm";
 
 function App() {
-  const [currentUser, setCurrentUser] = useState()
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [activeConversations, setActiveConversations] = useState([]);
 
- 
 
+  const currentUser = localStorage.getItem(
+    "CognitoIdentityServiceProvider.7kc4rfc9ehbh5al4nakqa3doja.LastAuthUser"
+  );
+
+  const token = localStorage.getItem(
+    `CognitoIdentityServiceProvider.7kc4rfc9ehbh5al4nakqa3doja.${currentUser}.idToken`
+  );
 
 
   return (
     <div className="App">
-      {!isLoggedIn && (
+      {!token && (
         <div>
           <div>
             <img src={logo} className="App-logo" alt="logo" />
           </div>
           <div>
-            <AuthForm setCurrentUser={setCurrentUser} setActiveConversations={setActiveConversations} setIsLoggedIn={setIsLoggedIn} />
+            <AuthForm  setIsLoggedIn={setIsLoggedIn} />
           </div>
         </div>
       )}
-      {isLoggedIn && (
+      {token && (
         <div>
-          <ActiveChats currentUser = {currentUser} activeConversations={activeConversations} setActiveConversations={setActiveConversations} setIsLoggedIn={setIsLoggedIn} setCurrentUser={setCurrentUser} />
+          <ActiveChats
+            currentUser={currentUser}
+            token={token}
+            setIsLoggedIn={setIsLoggedIn}
+          />
         </div>
       )}
     </div>

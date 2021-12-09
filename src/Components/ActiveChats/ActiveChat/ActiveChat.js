@@ -1,11 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import classes from "./ActiveChat.module.css";
 import Moment from "react-moment";
 
 function ActiveChat(props) {
-  const [newMessage, setNewMessage] = useState();
-
-  let conversationHist = props.conversationHist;
+  const [newMessage, setNewMessage] = useState("");
+const convoId = props.conversationHist.id
 
   const messageInputHandler = (event) => {
     setNewMessage(event.target.value);
@@ -14,38 +13,59 @@ function ActiveChat(props) {
   const submitHandler = (event) => {
     // ADD NEW MESSAGE TO OPEN CONVERSATION
     event.preventDefault(); // prevents default of request being sent.. which makes sure the page doesn't reload prematurely
+
+  
     fetch(
-      `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${props.conversationHist.id}`,
+      `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${convoId}`,
       {
         method: "POST",
-        body: newMessage,
+        body: JSON.stringify(newMessage),
         headers: {
           "Content-Type": "application/json",
+          Authorization: props.token,
         },
       }
     )
       .then((response) => {
         return response.json(); // return promise
       })
-      .then((data) => {
-        console.log("API response for creating new message: ", data);
-      })
+      .then((data) => {})
       .catch((err) => console.log(err));
+  };
 
-    setTimeout(() => {
+  // load conversation every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log(
+        "ActiveChat - Message hist id being requested: ",
+        props.conversationHist.id
+      );
       fetch(
-        `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${props.conversationHist.id}`
+        `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${convoId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: props.token,
+          },
+        }
       )
         .then((response) => {
           return response.json(); // return promise
         })
         .then((data) => {
-          console.log("open chat convo from API Gateway and Lambda: ", data);
-          props.setConversationHist(data);
+          console.log(data)
+          // if (!data.messages) {
+          //   props.setConversationHist({id: props.conversationHist.id});
+            
+          // } else {
+          //   console.log("ActiveChat - Message hist state updated: ", data);
+          //   props.setConversationHist(data);
+          // }
         })
         .catch((err) => console.log(err));
-    }, 1000);
-  };
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   let display;
   if (props.conversationHist.messages) {
@@ -58,14 +78,13 @@ function ActiveChat(props) {
       </li>
     ));
   } else {
-    display = <div>Send first message below!</div>
+    display = <div>Send first message below!</div>;
   }
 
-
-  console.log("conversation hist props", conversationHist);
   return (
     <div>
       {display}
+
       <form onSubmit={submitHandler}>
         <input
           type="textarea"

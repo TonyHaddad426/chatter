@@ -1,18 +1,18 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 
 function NewChat(props) {
-
   const usernameInputHandler = (event) => {
     event.preventDefault();
-    console.log("Data sent conversation post: ", [event.currentTarget.value]);
+    const enteredUsername = event.currentTarget.value;
 
     fetch(
       `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations`,
       {
         method: "POST",
-        body: JSON.stringify([event.currentTarget.value]),
+        body: JSON.stringify([enteredUsername]),
         headers: {
           "Content-Type": "application/json",
+          Authorization: props.token,
         },
       }
     )
@@ -20,14 +20,16 @@ function NewChat(props) {
         return response.json(); // return promise
       })
       .then((data) => {
-        console.log("API response for creating new conversation: ", data);
-        props.setNewChatToggle(false);
-        props.setConversationHist({
-            id: data
-        })
+        // update to include "send first message, message"
+        props.setConversationHist({ id: data });
+        props.setActiveConversations((prevState) => [
+          ...prevState,
+          { id: data, participants: [enteredUsername] },
+        ]);
+        props.setNewChatToggle((prevState) => !prevState);
+      
       })
       .catch((err) => console.log(err));
-    
   };
 
   const display = props.userList.map((user) => (
@@ -36,7 +38,7 @@ function NewChat(props) {
 
       <th>
         {" "}
-        <button type="submit" value={user.toString()} onClick={usernameInputHandler}>
+        <button type="submit" value={user} onClick={usernameInputHandler}>
           Start Chat
         </button>
       </th>

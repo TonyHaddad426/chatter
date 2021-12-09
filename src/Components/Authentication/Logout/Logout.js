@@ -14,8 +14,7 @@ function Logout(props) {
   const logoutHandler = (event) => {
     event.preventDefault();
     cognitoUser.signOut();
-    props.setIsLoggedIn(false);
-    props.setCurrentUser();
+    props.setIsLoggedIn((prevState) => !prevState);
   };
 
   return <button onClick={logoutHandler}>Logout</button>;

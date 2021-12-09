@@ -18,8 +18,10 @@ function SignUpConfirm(props) {
         alert(err);
       } else {
         console.log(results);
-        props.setShowVerifyCode(false); // close verify code component and bring user back to login/sign up homepage
-        props.setIsLogin(true) // switch to log in form instead of sign up
+        
+        props.setShowVerifyCode((prevState) => !prevState) // close verify code component and bring user back to login/sign up homepage
+        props.setIsLogin((prevState) => !prevState) // switch to log in form instead of sign up
+  
       }
     });
   };
@@ -46,7 +48,7 @@ function SignUpConfirm(props) {
             placeholder="Enter verification code..."
             ref={codeInputRef}
           />
-          <button>Verify</button>
+          <button type="submit">Verify</button>
         </div>
         <button onClick={resendCode}>Resend Code</button>
       </form>

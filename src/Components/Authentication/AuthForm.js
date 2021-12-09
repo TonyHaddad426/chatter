@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import classes from "./AuthForm.module.css";
-import Spinner from "../Styling/Spinner";
 import SignUpConfirm from "./SignUpConfirm/SignUpConfirm";
 
 import "cross-fetch/polyfill";
@@ -17,7 +16,6 @@ function AuthForm(props) {
 
   const [showVerifyCode, setShowVerifyCode] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
   const usernameInputRef = useRef();
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
@@ -31,7 +29,6 @@ function AuthForm(props) {
     event.preventDefault();
     const enteredUsername = usernameInputRef.current.value;
     const enteredPassword = passwordInputRef.current.value;
-    const enteredEmail = emailInputRef.current.value;
 
     if (isLogin) {
       // if isLogin is true, then authenticate existing user
@@ -51,39 +48,39 @@ function AuthForm(props) {
       const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
       cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: function () {
-          console.log(
-            "User has been authenticated, setting state in app.js and fetching user convo data"
+          const token = localStorage.getItem(
+            `CognitoIdentityServiceProvider.7kc4rfc9ehbh5al4nakqa3doja.${enteredUsername}.idToken`
           );
-          props.setIsLoggedIn(true);
-          props.setCurrentUser(enteredUsername);
-          // fetch active conversations data for the just logged in user
           fetch(
-            `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations`
+            `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations`,
+            {
+              headers: { Authorization: token },
+            }
           )
             .then((response) => {
               return response.json(); // return promise
             })
             .then((data) => {
-              console.log(
-                "API convo list response from API Gateway and Lambda: ",
-                data
-              );
 
               for (let key in data) {
                 const index = data[key].participants.indexOf(enteredUsername);
                 data[key].participants.splice(index, 1);
               }
-              console.log(data);
-              props.setActiveConversations(data);
+              console.log(
+                "AuthForm - API convo list is being updated and passed up to App.js: ",
+                data
+              );
+
+              props.setIsLoggedIn(prevState => !prevState)
             })
             .catch((err) => console.log(err));
         },
         onFailure: function () {
-          window.location("/");
           alert("Invalid user credentials");
         },
       });
     } else {
+      const enteredEmail = emailInputRef.current.value;
       // if isLogin is not true, then thr user is trying to sign up or create a new user
       const email = new AmazonCognitoIdentity.CognitoUserAttribute({
         Name: "email",
@@ -100,11 +97,8 @@ function AuthForm(props) {
 
           if (err) {
             alert(err.message || JSON.stringify(err));
-            return;
           } else {
-            const cognitoUser = result.user;
-            console.log("user name is " + cognitoUser.getUsername());
-            setShowVerifyCode(true);
+            setShowVerifyCode((prevState) => !prevState);
           }
         }
       );
@@ -118,6 +112,7 @@ function AuthForm(props) {
           setShowVerifyCode={setShowVerifyCode}
           userPool={userPool}
           enteredUsername={usernameInputRef.current.value}
+          setIsLogin={setIsLogin}
         />
       )}
       {!showVerifyCode && (
@@ -160,10 +155,8 @@ function AuthForm(props) {
               />
             </div>
             <div className={classes.actions}>
-              {!isLoading && (
-                <button>{isLogin ? "Login" : "Create Account"}</button>
-              )}
-              {isLoading && <Spinner />}
+              <button>{isLogin ? "Login" : "Create Account"}</button>
+
               <button
                 type="button"
                 className={classes.toggle}

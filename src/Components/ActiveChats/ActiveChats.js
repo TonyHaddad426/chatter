@@ -2,38 +2,47 @@ import React, { useState, useEffect } from "react";
 import classes from "./ActiveChats.module.css";
 import ActiveChat from "./ActiveChat/ActiveChat";
 import NewChat from "./NewChat/NewChat";
-import Logout from "../Authentication/Logout/Logout"
+import Logout from "../Authentication/Logout/Logout";
 import Moment from "react-moment";
 import "../../App.css";
 
 function ActiveChats(props) {
+  const [activeConversations, setActiveConversations] = useState([]);
   const [conversationHist, setConversationHist] = useState();
   const [newChatToggle, setNewChatToggle] = useState(false);
   const [userList, setUserList] = useState();
 
-  if (conversationHist) {
-    if (!conversationHist.messages) {
-      // fetch active conversations after new conversation has been started
+
+
+
+  useEffect(() => {
+    if (props.token) {
+      // FETCH ACTIVE CHATS LIST
+
       fetch(
-        `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations`
+        `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations`,
+        {
+          headers: { Authorization: props.token },
+        }
       )
         .then((response) => {
           return response.json(); // return promise
         })
         .then((data) => {
-          console.log(
-            "API convo list response from API Gateway and Lambda: ",
-            data
-          );
-          props.setActiveConversations(data);
+
+          for (let key in data) {
+            const index = data[key].participants.indexOf(props.currentUser);
+            data[key].participants.splice(index, 1);
+          }
+          setActiveConversations(data);
+  
         })
         .catch((err) => console.log(err));
     }
-  }
-  
-  console.log("Conversation detail", conversationHist);
+  }, []);
 
   // fetch list of available users to start new chat with
+
   const getUserList = (event) => {
     event.preventDefault();
 
@@ -42,10 +51,10 @@ function ActiveChats(props) {
         return response.json(); // return promise
       })
       .then((data) => {
-        console.log("User list from cognito API: ", data);
+   
 
         setUserList(data);
-        setNewChatToggle(true);
+        setNewChatToggle((prevState) => !prevState);
       })
       .catch((err) => console.log(err));
   };
@@ -53,23 +62,27 @@ function ActiveChats(props) {
   // fetch conversation history when user selects clicks on a specific conversation
   const getConversation = (event) => {
     event.preventDefault();
-    console.log("Conversation ID being retreived ", event.currentTarget.value);
+
     fetch(
-      `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${event.currentTarget.value}`
+      `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${event.currentTarget.value}`,
+      {
+        headers: {
+          Authorization: `${props.token}`,
+        },
+      }
     )
       .then((response) => {
         return response.json(); // return promise
       })
       .then((data) => {
-        console.log("open chat convo from API Gateway and Lambda: ", data);
         setConversationHist(data);
       })
       .catch((err) => console.log(err));
   };
 
   let display;
-  if (props.activeConversations) {
-    display = props.activeConversations.map((conversation) => (
+  if (activeConversations) {
+    display = activeConversations.map((conversation) => (
       <tr key={conversation.id} className={classes.row}>
         <th>
           <button
@@ -83,13 +96,13 @@ function ActiveChats(props) {
         <th>
           <Moment fromNow>{conversation.last}</Moment>
         </th>
-        <th>Delete</th>
       </tr>
     ));
   } else {
     display = <tr>Click above to start a new chat!</tr>;
   }
-
+  // console.log("ActiveChats.js - Convo List: ", activeConversations);
+  // console.log("ActiveChats.js - Messages: ", conversationHist)
   return (
     <div className={classes.flex_container}>
       <div className={classes.flex_child}>
@@ -105,21 +118,26 @@ function ActiveChats(props) {
         )}
         {newChatToggle && (
           <NewChat
+            setActiveConversations={setActiveConversations}
+
             setNewChatToggle={setNewChatToggle}
             setConversationHist={setConversationHist}
             userList={userList}
+            token={props.token}
           />
         )}
       </div>
       <div className={classes.flex_child}>
-        <Logout setIsLoggedIn={props.setIsLoggedIn} setCurrentUser={props.setCurrentUser} ></Logout>
+        <Logout setIsLoggedIn={props.setIsLoggedIn}></Logout>
         {!conversationHist && (
           <div>Click on a conversation to open it here</div>
         )}
         {conversationHist && (
           <ActiveChat
+            setActiveConversations={setActiveConversations}
             setConversationHist={setConversationHist}
             conversationHist={conversationHist}
+            token={props.token}
           >
             {" "}
           </ActiveChat>
