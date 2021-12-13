@@ -1,7 +1,38 @@
-.item {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-    padding: 0.5rem;
-    margin: 1rem 0;
-    width: 30%;
-    background-color: whitesmoke;
-  }
+.messagePane {
+  text-align: left;
+  height: 650px;
+  overflow-y: auto;
+  background-color: white;
+}
+
+
+
+.message {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  padding: 15px;
+  margin: 15px;
+  width: 90%;
+}
+
+.currentUser {
+  color: rgb(9, 146, 151);
+  margin-bottom: 2px;
+  font-weight: bold;
+}
+
+.notCurrentUser {
+  color: rgb(73, 73, 73);
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.textarea {
+  margin: 5px;
+padding: 10px;
+  width: 80%;
+}
+
+.butt {
+  height: 40px;
+  cursor: pointer;
+}

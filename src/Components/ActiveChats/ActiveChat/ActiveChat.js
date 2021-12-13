@@ -4,7 +4,9 @@ import Moment from "react-moment";
 
 function ActiveChat(props) {
   const [newMessage, setNewMessage] = useState("");
-const convoId = props.conversationHist.id
+
+  localStorage.setItem("convo",props.conversationHist.id)
+
 
   const messageInputHandler = (event) => {
     setNewMessage(event.target.value);
@@ -14,9 +16,8 @@ const convoId = props.conversationHist.id
     // ADD NEW MESSAGE TO OPEN CONVERSATION
     event.preventDefault(); // prevents default of request being sent.. which makes sure the page doesn't reload prematurely
 
-  
     fetch(
-      `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${convoId}`,
+      `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${localStorage.getItem("convo",props.convoId)}`,
       {
         method: "POST",
         body: JSON.stringify(newMessage),
@@ -41,7 +42,7 @@ const convoId = props.conversationHist.id
         props.conversationHist.id
       );
       fetch(
-        `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${convoId}`,
+        `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${localStorage.getItem("convo",props.convoId)}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -53,47 +54,56 @@ const convoId = props.conversationHist.id
           return response.json(); // return promise
         })
         .then((data) => {
-          console.log(data)
-          // if (!data.messages) {
-          //   props.setConversationHist({id: props.conversationHist.id});
-            
-          // } else {
-          //   console.log("ActiveChat - Message hist state updated: ", data);
-          //   props.setConversationHist(data);
-          // }
+          console.log(data);
+          if (!data.messages) {
+            props.setConversationHist({ id: props.conversationHist.id });
+          } else {
+            props.setConversationHist(data);
+          }
         })
         .catch((err) => console.log(err));
-    }, 3000);
+    }, 12000);
     return () => clearInterval(interval);
   }, []);
 
   let display;
   if (props.conversationHist.messages) {
     display = props.conversationHist.messages.map((conversation) => (
-      <li key={conversation.time} className={classes.item}>
-        {conversation.sender}
-        <p>{conversation.message}</p>
+      <div key={conversation.time} className={classes.message}>
+        <div
+          className={
+            conversation.sender === props.currentUser
+              ? classes.currentUser
+              : classes.notCurrentUser
+          }
+        >
+          {conversation.sender}
+        </div>
+
+        <div>{conversation.message}</div>
         <hr />
         <Moment fromNow>{conversation.time}</Moment>
-      </li>
+      </div>
     ));
   } else {
-    display = <div>Send first message below!</div>;
+    display = <tr>Send first message below!</tr>;
   }
 
   return (
     <div>
-      {display}
-
-      <form onSubmit={submitHandler}>
-        <input
-          type="textarea"
-          value={newMessage}
-          onChange={messageInputHandler}
-          placeholder="Type here..."
-        />
-        <button type="submit">Send</button>
-      </form>
+      <div className={classes.messagePane}>{display}</div>
+      <div >
+        <form onSubmit={submitHandler}>
+          <input
+          className={classes.textarea}
+            type="text"
+            value={newMessage}
+            onChange={messageInputHandler}
+            placeholder="Type here..."
+          />
+          <button className={classes.butt}type="submit">Send</button>
+        </form>
+      </div>
     </div>
   );
 }

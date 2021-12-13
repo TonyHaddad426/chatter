@@ -1,4 +1,5 @@
 import React from "react";
+import classes from "./Logout.module.css";
 import "cross-fetch/polyfill";
 import * as AmazonCognitoIdentity from "amazon-cognito-identity-js";
 
@@ -17,7 +18,14 @@ function Logout(props) {
     props.setIsLoggedIn((prevState) => !prevState);
   };
 
-  return <button onClick={logoutHandler}>Logout</button>;
+  return (
+    <div className={classes.button_slide}>  
+      <button type="button"  onClick={logoutHandler}>
+        Logout
+      </button>
+      </div>
+
+  );
 }
 
 export default Logout;

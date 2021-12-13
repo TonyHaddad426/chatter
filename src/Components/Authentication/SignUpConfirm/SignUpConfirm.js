@@ -1,14 +1,17 @@
 import React, { useRef } from "react";
+import classes from "../AuthForm.module.css";
 import "cross-fetch/polyfill";
 import * as AmazonCognitoIdentity from "amazon-cognito-identity-js";
 
 function SignUpConfirm(props) {
   const codeInputRef = useRef();
+
   const cognitoUser = new AmazonCognitoIdentity.CognitoUser({
     Username: props.enteredUsername,
     Pool: props.userPool,
   });
   const submitHandler = (event) => {
+    console.log("Sign up submit handler")
     event.preventDefault();
     const enteredCode = codeInputRef.current.value;
 
@@ -18,10 +21,9 @@ function SignUpConfirm(props) {
         alert(err);
       } else {
         console.log(results);
-        
-        props.setShowVerifyCode((prevState) => !prevState) // close verify code component and bring user back to login/sign up homepage
-        props.setIsLogin((prevState) => !prevState) // switch to log in form instead of sign up
-  
+
+        props.setShowVerifyCode((prevState) => !prevState); // close verify code component and bring user back to login/sign up homepage
+        props.setIsLogin((prevState) => !prevState); // switch to log in form instead of sign up
       }
     });
   };
@@ -36,10 +38,12 @@ function SignUpConfirm(props) {
   };
 
   return (
-    <div>
+    <div className={classes.auth}>
       <form onSubmit={submitHandler}>
-        <div>
-          <label htmlFor="code">A verification code has been sent to the provided email address</label>
+        <div className={classes.control}>
+          <label htmlFor="code">
+            A verification code has been sent to the provided email address
+          </label>
           <input
             type="text"
             id="code"
@@ -48,10 +52,20 @@ function SignUpConfirm(props) {
             placeholder="Enter verification code..."
             ref={codeInputRef}
           />
-          <button type="submit">Verify</button>
         </div>
-        <button onClick={resendCode}>Resend Code</button>
+        <div className={classes.actions}>
+          <button className={classes.toggle} onClick={submitHandler}>
+            Verify Code
+          </button>
+        </div>
       </form>
+
+        <div className={classes.actions}>
+          <button className={classes.toggle} onClick={resendCode}>
+            Resend Code
+          </button>
+        </div>
+ 
     </div>
   );
 }

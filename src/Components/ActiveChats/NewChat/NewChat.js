@@ -1,6 +1,11 @@
 import React from "react";
+import classes from "../ActiveChats.module.css";
 
 function NewChat(props) {
+  const goBackHandler = (event) => {
+    event.preventDefault();
+    props.setNewChatToggle((prevState) => !prevState);
+  };
   const usernameInputHandler = (event) => {
     event.preventDefault();
     const enteredUsername = event.currentTarget.value;
@@ -27,25 +32,33 @@ function NewChat(props) {
           { id: data, participants: [enteredUsername] },
         ]);
         props.setNewChatToggle((prevState) => !prevState);
-      
       })
       .catch((err) => console.log(err));
   };
 
   const display = props.userList.map((user) => (
     <tr key={user}>
-      <th>{user}</th>
-
-      <th>
-        {" "}
+      <div className={classes.btn1}>
         <button type="submit" value={user} onClick={usernameInputHandler}>
-          Start Chat
+          <span className={classes.row}> {user} </span>
         </button>
-      </th>
+      </div>
     </tr>
   ));
 
-  return <table> {display}</table>;
+  return (
+    <div>
+      <table className={classes.table}>
+        {" "}
+        <tbody>{display} </tbody>
+      </table>
+      <div className={classes.button_slide}> 
+      <button type="submit" onClick={goBackHandler}>
+        Go Back
+      </button>
+      </div>
+    </div>
+  );
 }
 
 export default NewChat;

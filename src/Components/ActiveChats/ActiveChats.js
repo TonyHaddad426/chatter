@@ -12,9 +12,6 @@ function ActiveChats(props) {
   const [newChatToggle, setNewChatToggle] = useState(false);
   const [userList, setUserList] = useState();
 
-
-
-
   useEffect(() => {
     if (props.token) {
       // FETCH ACTIVE CHATS LIST
@@ -29,13 +26,11 @@ function ActiveChats(props) {
           return response.json(); // return promise
         })
         .then((data) => {
-
           for (let key in data) {
             const index = data[key].participants.indexOf(props.currentUser);
             data[key].participants.splice(index, 1);
           }
           setActiveConversations(data);
-  
         })
         .catch((err) => console.log(err));
     }
@@ -51,8 +46,6 @@ function ActiveChats(props) {
         return response.json(); // return promise
       })
       .then((data) => {
-   
-
         setUserList(data);
         setNewChatToggle((prevState) => !prevState);
       })
@@ -79,47 +72,52 @@ function ActiveChats(props) {
       })
       .catch((err) => console.log(err));
   };
-
   let display;
   if (activeConversations) {
     display = activeConversations.map((conversation) => (
-      <tr key={conversation.id} className={classes.row}>
-        <th>
+      <tr key={conversation.id}>
+        <div className={classes.btn1}>
           <button
             type="submit"
             value={conversation.id}
             onClick={getConversation}
           >
-            {conversation.participants[0]}
+            <span>
+              <span className={classes.row}>
+                {" "}
+                {conversation.participants[0]}{" "}
+              </span>
+
+              <Moment fromNow>{conversation.last}</Moment>
+            </span>
           </button>
-        </th>
-        <th>
-          <Moment fromNow>{conversation.last}</Moment>
-        </th>
+        </div>
       </tr>
     ));
   } else {
     display = <tr>Click above to start a new chat!</tr>;
   }
-  // console.log("ActiveChats.js - Convo List: ", activeConversations);
-  // console.log("ActiveChats.js - Messages: ", conversationHist)
+
+
   return (
     <div className={classes.flex_container}>
-      <div className={classes.flex_child}>
-        <h1>Chats</h1>
+      <div className={classes.flex_child_1}>
+        <h1 className={classes.title}>Chatter</h1>
         {!newChatToggle && (
           <div>
-            {" "}
-            <button type="submit" onClick={getUserList}>
-              Start New Chat
-            </button>
-            <table className={classes.table}>{display}</table>{" "}
+            <div className={classes.button_slide}>
+              <button type="submit" onClick={getUserList}>
+                Start New Chat
+              </button>
+            </div>
+            <table className={classes.table}>
+              <tbody>{display}</tbody>
+            </table>
           </div>
         )}
         {newChatToggle && (
           <NewChat
             setActiveConversations={setActiveConversations}
-
             setNewChatToggle={setNewChatToggle}
             setConversationHist={setConversationHist}
             userList={userList}
@@ -127,13 +125,16 @@ function ActiveChats(props) {
           />
         )}
       </div>
-      <div className={classes.flex_child}>
+      <div className={classes.flex_child_2}>
         <Logout setIsLoggedIn={props.setIsLoggedIn}></Logout>
         {!conversationHist && (
-          <div>Click on a conversation to open it here</div>
+          <h1 className={classes.header}>
+            Click on or start a new chat on the left!
+          </h1>
         )}
         {conversationHist && (
           <ActiveChat
+            currentUser={props.currentUser}
             setActiveConversations={setActiveConversations}
             setConversationHist={setConversationHist}
             conversationHist={conversationHist}

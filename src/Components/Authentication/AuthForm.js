@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import classes from "./AuthForm.module.css";
 import SignUpConfirm from "./SignUpConfirm/SignUpConfirm";
+import Spinner from "../Styling/Spinner";
 
 import "cross-fetch/polyfill";
 import * as AmazonCognitoIdentity from "amazon-cognito-identity-js";
@@ -16,17 +17,24 @@ function AuthForm(props) {
 
   const [showVerifyCode, setShowVerifyCode] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+
+  const [user, setUserName] = useState("");
   const usernameInputRef = useRef();
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
 
+
+  console.log("is login", isLogin)
   const switchAuthModeHandler = () => {
     // this udpates the state to toggle beetwen sign in and log in forms
     setIsLogin((prevState) => !prevState);
   };
 
+
+
   const submitHandler = (event) => {
     event.preventDefault();
+
     const enteredUsername = usernameInputRef.current.value;
     const enteredPassword = passwordInputRef.current.value;
 
@@ -61,17 +69,13 @@ function AuthForm(props) {
               return response.json(); // return promise
             })
             .then((data) => {
-
               for (let key in data) {
                 const index = data[key].participants.indexOf(enteredUsername);
                 data[key].participants.splice(index, 1);
               }
-              console.log(
-                "AuthForm - API convo list is being updated and passed up to App.js: ",
-                data
-              );
-
-              props.setIsLoggedIn(prevState => !prevState)
+     
+         
+              props.setIsLoggedIn((prevState) => !prevState);
             })
             .catch((err) => console.log(err));
         },
@@ -80,7 +84,10 @@ function AuthForm(props) {
         },
       });
     } else {
+
+      
       const enteredEmail = emailInputRef.current.value;
+    
       // if isLogin is not true, then thr user is trying to sign up or create a new user
       const email = new AmazonCognitoIdentity.CognitoUserAttribute({
         Name: "email",
@@ -93,11 +100,13 @@ function AuthForm(props) {
         [email],
         null,
         function (err, result) {
+         
           console.log(JSON.stringify(result));
 
           if (err) {
             alert(err.message || JSON.stringify(err));
           } else {
+            setUserName(enteredUsername)
             setShowVerifyCode((prevState) => !prevState);
           }
         }
@@ -105,69 +114,75 @@ function AuthForm(props) {
     }
   };
 
+
+  console.log(user)
+
+    let display = (
+      <section className={classes.auth}>
+        <h1>{isLogin ? "Login" : "Sign Up"}</h1>
+        <form onSubmit={submitHandler}>
+          <div className={classes.control}>
+            <label htmlFor="username">Username</label>
+            <input
+              type="username"
+              id="username"
+              maxLength="20"
+              required
+              ref={usernameInputRef}
+            />
+          </div>
+
+          {!isLogin && (
+            <div className={classes.control}>
+              {" "}
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                maxLength="100"
+                required
+                ref={emailInputRef}
+              />{" "}
+            </div>
+          )}
+
+          <div className={classes.control}>
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              maxLength="20"
+              required
+              ref={passwordInputRef}
+            />
+          </div>
+          <div className={classes.actions}>
+            <button>{isLogin ? "Login" : "Create Account"}</button>
+
+            <button
+              type="button"
+              className={classes.toggle}
+              onClick={switchAuthModeHandler}
+            >
+              {isLogin ? "Create new account" : "Login with existing account"}
+            </button>
+          </div>
+        </form>
+      </section>
+    );
+  
   return (
     <div>
       {showVerifyCode && (
         <SignUpConfirm
           setShowVerifyCode={setShowVerifyCode}
           userPool={userPool}
-          enteredUsername={usernameInputRef.current.value}
+          enteredUsername={user}
           setIsLogin={setIsLogin}
+    
         />
       )}
-      {!showVerifyCode && (
-        <section className={classes.auth}>
-          <h1>{isLogin ? "Login" : "Sign Up"}</h1>
-          <form onSubmit={submitHandler}>
-            <div className={classes.control}>
-              <label htmlFor="username">Username</label>
-              <input
-                type="username"
-                id="username"
-                maxLength="20"
-                required
-                ref={usernameInputRef}
-              />
-            </div>
-
-            {!isLogin && (
-              <div className={classes.control}>
-                {" "}
-                <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  maxLength="100"
-                  required
-                  ref={emailInputRef}
-                />{" "}
-              </div>
-            )}
-
-            <div className={classes.control}>
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                maxLength="20"
-                required
-                ref={passwordInputRef}
-              />
-            </div>
-            <div className={classes.actions}>
-              <button>{isLogin ? "Login" : "Create Account"}</button>
-
-              <button
-                type="button"
-                className={classes.toggle}
-                onClick={switchAuthModeHandler}
-              >
-                {isLogin ? "Create new account" : "Login with existing account"}
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
+      {!showVerifyCode && <div> {display}</div>}
     </div>
   );
 }

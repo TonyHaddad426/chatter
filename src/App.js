@@ -7,7 +7,6 @@ import AuthForm from "./Components/Authentication/AuthForm";
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-
   const currentUser = localStorage.getItem(
     "CognitoIdentityServiceProvider.7kc4rfc9ehbh5al4nakqa3doja.LastAuthUser"
   );
@@ -16,29 +15,23 @@ function App() {
     `CognitoIdentityServiceProvider.7kc4rfc9ehbh5al4nakqa3doja.${currentUser}.idToken`
   );
 
-
   return (
-    <div className="App">
+    <main className="App">
       {!token && (
         <div>
-          <div>
-            <img src={logo} className="App-logo" alt="logo" />
-          </div>
-          <div>
-            <AuthForm  setIsLoggedIn={setIsLoggedIn} />
-          </div>
+          <img src={logo} className="App-logo" alt="logo" />
+
+          <AuthForm setIsLoggedIn={setIsLoggedIn} />
         </div>
       )}
       {token && (
-        <div>
-          <ActiveChats
-            currentUser={currentUser}
-            token={token}
-            setIsLoggedIn={setIsLoggedIn}
-          />
-        </div>
+        <ActiveChats
+          currentUser={currentUser}
+          token={token}
+          setIsLoggedIn={setIsLoggedIn}
+        />
       )}
-    </div>
+    </main>
   );
 }
 
