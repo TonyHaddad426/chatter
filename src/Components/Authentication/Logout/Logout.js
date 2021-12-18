@@ -16,6 +16,7 @@ function Logout(props) {
     event.preventDefault();
     cognitoUser.signOut();
     props.setIsLoggedIn((prevState) => !prevState);
+    localStorage.removeItem("convo")
   };
 
   return (

@@ -18,7 +18,7 @@ function SignUpConfirm(props) {
     cognitoUser.confirmRegistration(enteredCode, true, function (err, results) {
       console.log(enteredCode);
       if (err) {
-        alert(err);
+        alert(err.message || JSON.stringify(err))
       } else {
         console.log(results);
 
@@ -32,7 +32,7 @@ function SignUpConfirm(props) {
     event.preventDefault();
     cognitoUser.resendConfirmationCode(function (err) {
       if (err) {
-        alert(err);
+        alert(err.message || JSON.stringify(err))
       }
     });
   };

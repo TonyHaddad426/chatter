@@ -5,8 +5,8 @@ import Moment from "react-moment";
 function ActiveChat(props) {
   const [newMessage, setNewMessage] = useState("");
 
-  localStorage.setItem("convo",props.conversationHist.id)
-
+  console.log("ACTIVE CHAT CONVO ID: ", props.conversationHist.id);
+  // localStorage.setItem("convo", props.conversationHist.id);
 
   const messageInputHandler = (event) => {
     setNewMessage(event.target.value);
@@ -15,9 +15,9 @@ function ActiveChat(props) {
   const submitHandler = (event) => {
     // ADD NEW MESSAGE TO OPEN CONVERSATION
     event.preventDefault(); // prevents default of request being sent.. which makes sure the page doesn't reload prematurely
-
+    setNewMessage("")
     fetch(
-      `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${localStorage.getItem("convo",props.convoId)}`,
+      `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${localStorage.getItem("convo")}`,
       {
         method: "POST",
         body: JSON.stringify(newMessage),
@@ -28,21 +28,17 @@ function ActiveChat(props) {
       }
     )
       .then((response) => {
-        return response.json(); // return promise
+        return response; // return promise
       })
-      .then((data) => {})
+      .then((data) => console.log("Active Chat sent message: ", data))
       .catch((err) => console.log(err));
   };
 
   // load conversation every 3 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log(
-        "ActiveChat - Message hist id being requested: ",
-        props.conversationHist.id
-      );
       fetch(
-        `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${localStorage.getItem("convo",props.convoId)}`,
+        `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${localStorage.getItem("convo")}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -54,7 +50,6 @@ function ActiveChat(props) {
           return response.json(); // return promise
         })
         .then((data) => {
-          console.log(data);
           if (!data.messages) {
             props.setConversationHist({ id: props.conversationHist.id });
           } else {
@@ -68,6 +63,7 @@ function ActiveChat(props) {
 
   let display;
   if (props.conversationHist.messages) {
+    console.log("loaded conversation hist: ", props.conversationHist);
     display = props.conversationHist.messages.map((conversation) => (
       <div key={conversation.time} className={classes.message}>
         <div
@@ -79,8 +75,8 @@ function ActiveChat(props) {
         >
           {conversation.sender}
         </div>
+        {conversation.message}
 
-        <div>{conversation.message}</div>
         <hr />
         <Moment fromNow>{conversation.time}</Moment>
       </div>
@@ -92,16 +88,18 @@ function ActiveChat(props) {
   return (
     <div>
       <div className={classes.messagePane}>{display}</div>
-      <div >
+      <div>
         <form onSubmit={submitHandler}>
           <input
-          className={classes.textarea}
+            className={classes.textarea}
             type="text"
             value={newMessage}
             onChange={messageInputHandler}
             placeholder="Type here..."
           />
-          <button className={classes.butt}type="submit">Send</button>
+          <button className={classes.butt} type="submit">
+            Send
+          </button>
         </form>
       </div>
     </div>

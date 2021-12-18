@@ -23,14 +23,11 @@ function AuthForm(props) {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
 
-
-  console.log("is login", isLogin)
+  console.log("is login", isLogin);
   const switchAuthModeHandler = () => {
     // this udpates the state to toggle beetwen sign in and log in forms
     setIsLogin((prevState) => !prevState);
   };
-
-
 
   const submitHandler = (event) => {
     event.preventDefault();
@@ -73,21 +70,18 @@ function AuthForm(props) {
                 const index = data[key].participants.indexOf(enteredUsername);
                 data[key].participants.splice(index, 1);
               }
-     
-         
+
               props.setIsLoggedIn((prevState) => !prevState);
             })
-            .catch((err) => console.log(err));
+            .catch((err) => alert(err.message || JSON.stringify(err)));
         },
         onFailure: function () {
           alert("Invalid user credentials");
         },
       });
     } else {
-
-      
       const enteredEmail = emailInputRef.current.value;
-    
+
       // if isLogin is not true, then thr user is trying to sign up or create a new user
       const email = new AmazonCognitoIdentity.CognitoUserAttribute({
         Name: "email",
@@ -100,13 +94,12 @@ function AuthForm(props) {
         [email],
         null,
         function (err, result) {
-         
           console.log(JSON.stringify(result));
 
           if (err) {
             alert(err.message || JSON.stringify(err));
           } else {
-            setUserName(enteredUsername)
+            setUserName(enteredUsername);
             setShowVerifyCode((prevState) => !prevState);
           }
         }
@@ -114,63 +107,62 @@ function AuthForm(props) {
     }
   };
 
+  console.log(user);
 
-  console.log(user)
+  let display = (
+    <section className={classes.auth}>
+      <h1>{isLogin ? "Login" : "Sign Up"}</h1>
+      <form onSubmit={submitHandler}>
+        <div className={classes.control}>
+          <label htmlFor="username">Username</label>
+          <input
+            type="username"
+            id="username"
+            maxLength="20"
+            required
+            ref={usernameInputRef}
+          />
+        </div>
 
-    let display = (
-      <section className={classes.auth}>
-        <h1>{isLogin ? "Login" : "Sign Up"}</h1>
-        <form onSubmit={submitHandler}>
+        {!isLogin && (
           <div className={classes.control}>
-            <label htmlFor="username">Username</label>
+            {" "}
+            <label htmlFor="email">Email</label>
             <input
-              type="username"
-              id="username"
-              maxLength="20"
+              type="email"
+              id="email"
+              maxLength="100"
               required
-              ref={usernameInputRef}
-            />
+              ref={emailInputRef}
+            />{" "}
           </div>
+        )}
 
-          {!isLogin && (
-            <div className={classes.control}>
-              {" "}
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                maxLength="100"
-                required
-                ref={emailInputRef}
-              />{" "}
-            </div>
-          )}
+        <div className={classes.control}>
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            maxLength="20"
+            required
+            ref={passwordInputRef}
+          />
+        </div>
+        <div className={classes.actions}>
+          <button>{isLogin ? "Login" : "Create Account"}</button>
 
-          <div className={classes.control}>
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              maxLength="20"
-              required
-              ref={passwordInputRef}
-            />
-          </div>
-          <div className={classes.actions}>
-            <button>{isLogin ? "Login" : "Create Account"}</button>
+          <button
+            type="button"
+            className={classes.toggle}
+            onClick={switchAuthModeHandler}
+          >
+            {isLogin ? "Create new account" : "Login with existing account"}
+          </button>
+        </div>
+      </form>
+    </section>
+  );
 
-            <button
-              type="button"
-              className={classes.toggle}
-              onClick={switchAuthModeHandler}
-            >
-              {isLogin ? "Create new account" : "Login with existing account"}
-            </button>
-          </div>
-        </form>
-      </section>
-    );
-  
   return (
     <div>
       {showVerifyCode && (
@@ -179,7 +171,6 @@ function AuthForm(props) {
           userPool={userPool}
           enteredUsername={user}
           setIsLogin={setIsLogin}
-    
         />
       )}
       {!showVerifyCode && <div> {display}</div>}
