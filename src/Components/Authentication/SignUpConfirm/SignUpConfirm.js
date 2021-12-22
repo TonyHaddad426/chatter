@@ -6,7 +6,7 @@ function SignUpConfirm(props) {
   const codeInputRef = useRef();
 
   const submitHandler = (event) => {
-    console.log("Sign up submit handler");
+   
     event.preventDefault();
     const enteredCode = codeInputRef.current.value;
     confirmReg(

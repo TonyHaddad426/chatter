@@ -5,7 +5,7 @@ import UserFilter from "./UserFilter/UserFilter";
 function NewChat(props) {
   const [userList, setUserList] = useState(props.userList);
   const [updatedUserList, setUpdatedUserList] = useState();
-
+  
   const goBackHandler = (event) => {
     event.preventDefault();
     props.setNewChatToggle((prevState) => !prevState);
@@ -14,6 +14,16 @@ function NewChat(props) {
     event.preventDefault();
     const enteredUsername = event.currentTarget.value;
     console.log("username: ", enteredUsername, "token: ", props.token);
+
+    for (let key in props.activeConversations) {
+      console.log(props.activeConversations[key].participants[0])
+      if(props.activeConversations[key].participants[0] === enteredUsername) {
+        return alert("You already have an active chat with this user!");
+      }
+   
+    }
+
+
     fetch(
       `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations`,
       {
@@ -26,14 +36,12 @@ function NewChat(props) {
       }
     )
       .then((response) => {
-        console.log(response)
+        console.log(response);
         return response.json(); // return promise
       })
       .then((data) => {
         console.log("Create new chat: ", data);
 
-        // update to include "send first message, message"
-  
 
         props.setActiveConversations((prevState) => [
           ...prevState,
@@ -74,7 +82,6 @@ function NewChat(props) {
   return (
     <div>
       <UserFilter userList={userList} setUpdatedUserList={setUpdatedUserList}>
-        {" "}
       </UserFilter>
       <table className={classes.table}>
         <tbody>{display} </tbody>

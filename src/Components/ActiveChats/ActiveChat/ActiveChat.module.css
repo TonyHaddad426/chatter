@@ -1,11 +1,12 @@
 .messagePane {
+  border-radius: 25px;
   text-align: left;
-  height: 650px;
+  margin: 15px;
+  padding: 15px;
+  height: 700px;
   overflow-y: auto;
   background-color: white;
 }
-
-
 
 .message {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
@@ -30,6 +31,10 @@
   margin: 5px;
 padding: 10px;
   width: 80%;
+}
+
+.hidden {
+  display: none;
 }
 
 .butt {

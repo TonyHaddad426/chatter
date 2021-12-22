@@ -3,16 +3,11 @@ import "./App.css";
 import React, { useState } from "react";
 import ActiveChats from "./Components/ActiveChats/ActiveChats";
 import AuthForm from "./Components/Authentication/AuthForm";
-import {
-  checkTokenExpiration,
-  getIdToken,
-  getCurrentUser,
-} from "./cognitoAuth";
-import "cross-fetch/polyfill";
+
+import { getIdToken, getCurrentUser } from "./cognitoAuth";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [modal, setShowModal] = useState(false);
 
   const currentUser = getCurrentUser();
 
@@ -21,10 +16,7 @@ function App() {
     token = getIdToken(currentUser).jwtToken;
   }
 
-  console.log(currentUser, token)
-  // if (token) {
-  //   checkTokenExpiration(currentUser)
-  // }
+  console.log(currentUser, token);
 
   return (
     <main className="App">

@@ -15,9 +15,11 @@ function ActiveChat(props) {
   const submitHandler = (event) => {
     // ADD NEW MESSAGE TO OPEN CONVERSATION
     event.preventDefault(); // prevents default of request being sent.. which makes sure the page doesn't reload prematurely
-    setNewMessage("")
+    setNewMessage("");
     fetch(
-      `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${localStorage.getItem("convo")}`,
+      `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${localStorage.getItem(
+        "convo"
+      )}`,
       {
         method: "POST",
         body: JSON.stringify(newMessage),
@@ -38,7 +40,9 @@ function ActiveChat(props) {
   useEffect(() => {
     const interval = setInterval(() => {
       fetch(
-        `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${localStorage.getItem("convo")}`,
+        `https://hf9tlac6n0.execute-api.us-east-1.amazonaws.com/prod/conversations/${localStorage.getItem(
+          "convo"
+        )}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -65,20 +69,22 @@ function ActiveChat(props) {
   if (props.conversationHist.messages) {
     console.log("loaded conversation hist: ", props.conversationHist);
     display = props.conversationHist.messages.map((conversation) => (
-      <div key={conversation.time} className={classes.message}>
-        <div
-          className={
-            conversation.sender === props.currentUser
-              ? classes.currentUser
-              : classes.notCurrentUser
-          }
-        >
-          {conversation.sender}
-        </div>
-        {conversation.message}
+      <div key={conversation.time} className={conversation.message === '' ? classes.hidden : null}> 
+        <div  className={classes.message}>
+          <div
+            className={
+              conversation.sender === props.currentUser
+                ? classes.currentUser
+                : classes.notCurrentUser
+            }
+          >
+            {conversation.sender}
+          </div>
+          {conversation.message}
 
-        <hr />
-        <Moment fromNow>{conversation.time}</Moment>
+          <hr />
+          <Moment fromNow>{conversation.time}</Moment>
+        </div>
       </div>
     ));
   } else {
