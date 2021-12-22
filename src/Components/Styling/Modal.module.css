@@ -1,0 +1,69 @@
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.75);
+  }
+  
+  .modal {
+    position: fixed;
+    top: 30vh;
+    left: 10%;
+    width: 80%;
+    z-index: 100;
+    overflow: hidden; 
+    transition: all 0.3s ease-out;
+  }
+
+  /* .openModal {
+    animation: openModal 0.4s ease-out forwards;
+  } */
+  
+  .header {
+    background: rgb(31, 31, 31);
+    padding: 1rem;
+  }
+  
+  .header h2 {
+    margin: 0;
+    color: white;
+  }
+
+  .h1 {
+    color: salmon;
+  }
+  
+  .content {
+    padding: 1rem;
+  }
+  
+  .actions {
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  @media (min-width: 768px) {
+    .modal {
+      left: calc(50% - 20rem);
+      width: 40rem;
+    }
+  }
+
+  /* @keyframes openModal {
+    0% {
+      opacity: 0;
+      transform: translateY(-100%)
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(20%)
+    } 
+    100% {
+      opacity: 1;
+      transform: translateY(0%)
+    }
+  } */

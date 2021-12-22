@@ -6,7 +6,10 @@ import Logout from "../Authentication/Logout/Logout";
 import Moment from "react-moment";
 import "../../App.css";
 
+import {getIdToken} from "../../cognitoAuth"
+
 function ActiveChats(props) {
+
   const [activeConversations, setActiveConversations] = useState([]);
   const [conversationHist, setConversationHist] = useState();
   const [newChatToggle, setNewChatToggle] = useState(false);

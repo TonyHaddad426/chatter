@@ -1,40 +1,25 @@
 import React, { useRef } from "react";
 import classes from "../AuthForm.module.css";
-import "cross-fetch/polyfill";
-import * as AmazonCognitoIdentity from "amazon-cognito-identity-js";
+import { confirmReg, resendCode } from "../../../cognitoAuth";
 
 function SignUpConfirm(props) {
   const codeInputRef = useRef();
 
-  const cognitoUser = new AmazonCognitoIdentity.CognitoUser({
-    Username: props.enteredUsername,
-    Pool: props.userPool,
-  });
   const submitHandler = (event) => {
-    console.log("Sign up submit handler")
+    console.log("Sign up submit handler");
     event.preventDefault();
     const enteredCode = codeInputRef.current.value;
-
-    cognitoUser.confirmRegistration(enteredCode, true, function (err, results) {
-      console.log(enteredCode);
-      if (err) {
-        alert(err.message || JSON.stringify(err))
-      } else {
-        console.log(results);
-
-        props.setShowVerifyCode((prevState) => !prevState); // close verify code component and bring user back to login/sign up homepage
-        props.setIsLogin((prevState) => !prevState); // switch to log in form instead of sign up
-      }
-    });
+    confirmReg(
+      props.enteredUsername,
+      enteredCode,
+      props.setShowVerifyCode,
+      props.setIsLogin
+    );
   };
 
-  const resendCode = (event) => {
+  const resendAuthCode = (event) => {
     event.preventDefault();
-    cognitoUser.resendConfirmationCode(function (err) {
-      if (err) {
-        alert(err.message || JSON.stringify(err))
-      }
-    });
+    resendCode(props.enteredUsername);
   };
 
   return (
@@ -60,12 +45,11 @@ function SignUpConfirm(props) {
         </div>
       </form>
 
-        <div className={classes.actions}>
-          <button className={classes.toggle} onClick={resendCode}>
-            Resend Code
-          </button>
-        </div>
- 
+      <div className={classes.actions}>
+        <button className={classes.toggle} onClick={resendAuthCode}>
+          Resend Code
+        </button>
+      </div>
     </div>
   );
 }

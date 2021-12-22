@@ -3,17 +3,28 @@ import "./App.css";
 import React, { useState } from "react";
 import ActiveChats from "./Components/ActiveChats/ActiveChats";
 import AuthForm from "./Components/Authentication/AuthForm";
+import {
+  checkTokenExpiration,
+  getIdToken,
+  getCurrentUser,
+} from "./cognitoAuth";
+import "cross-fetch/polyfill";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [modal, setShowModal] = useState(false);
 
-  const currentUser = localStorage.getItem(
-    "CognitoIdentityServiceProvider.7kc4rfc9ehbh5al4nakqa3doja.LastAuthUser"
-  );
+  const currentUser = getCurrentUser();
 
-  const token = localStorage.getItem(
-    `CognitoIdentityServiceProvider.7kc4rfc9ehbh5al4nakqa3doja.${currentUser}.idToken`
-  );
+  let token;
+  if (currentUser) {
+    token = getIdToken(currentUser).jwtToken;
+  }
+
+  console.log(currentUser, token)
+  // if (token) {
+  //   checkTokenExpiration(currentUser)
+  // }
 
   return (
     <main className="App">
